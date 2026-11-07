@@ -534,10 +534,7 @@ Digunakan untuk mencatat transaksi setor dan tarik tunai pada rekening nasabah.
 
 Digunakan untuk mencatat pengajuan pembiayaan petani dan UMKM serta memverifikasi berkasnya.
 
-<p align="center">
-  <img src="![Uploading WhatsApp Image 2026-11-07 at 22.34.31.jpeg…]()
-">
-</p>
+<img width="1600" height="904" alt="WhatsApp Image 2026-11-07 at 22 34 31" src="https://github.com/user-attachments/assets/599dfcac-e6b4-4222-b393-af2906438241" />
 
 **Langkah penggunaan:**
 
@@ -554,9 +551,7 @@ Digunakan untuk mencatat pengajuan pembiayaan petani dan UMKM serta memverifikas
 
 Digunakan untuk mencatat tagihan dan pembayaran angsuran pembiayaan.
 
-<p align="center">
-  <img src="docs/screenshots/admin-angsuran.png" alt="Data Angsuran" width="850">
-</p>
+<img width="1600" height="904" alt="WhatsApp Image 2026-11-07 at 22 34 31 (1)" src="https://github.com/user-attachments/assets/6449e41b-cf45-4cf2-ad57-2517da3d185e" />
 
 **Langkah penggunaan:**
 
@@ -573,9 +568,7 @@ Digunakan untuk mencatat tagihan dan pembayaran angsuran pembiayaan.
 
 Digunakan untuk memantau audit log dan ringkasan operasional sistem.
 
-<p align="center">
-  <img src="docs/screenshots/admin-monitoring.png" alt="Monitoring dan Laporan" width="850">
-</p>
+![Uploading WhatsApp Image 2026-11-07 at 22.34.31 (2).jpeg…]()
 
 **Langkah penggunaan:**
 
