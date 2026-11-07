@@ -535,7 +535,8 @@ Digunakan untuk mencatat transaksi setor dan tarik tunai pada rekening nasabah.
 Digunakan untuk mencatat pengajuan pembiayaan petani dan UMKM serta memverifikasi berkasnya.
 
 <p align="center">
-  <img src="docs/screenshots/admin-pengajuan.png" alt="Pengajuan Pembiayaan" width="850">
+  <img src="![Uploading WhatsApp Image 2026-11-07 at 22.34.31.jpeg…]()
+">
 </p>
 
 **Langkah penggunaan:**
