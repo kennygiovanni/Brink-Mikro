@@ -49,7 +49,7 @@ Proyek ini berkaitan dengan tiga tujuan Sustainable Development Goals (SDGs):
 | Lapisan | Status |
 |---|---|
 | Basis data (11 tabel, relasi, data contoh) | ✅ Selesai |
-| Backend: `model`, `dao`, `service` | ✅ Selesai dan teruji lewat `BrinkmikroApp` |
+| Backend: `model`, `dao`, `service`, `controller` | ✅ Selesai dan teruji lewat `BrinkmikroApp` |
 | Antarmuka GUI (19 form, 3 role) | ✅ Tampilan dan navigasi selesai |
 | Integrasi GUI ↔ DAO | 🔧 Sedang berjalan. Tabel pada form saat ini masih memakai `DefaultTableModel` di memori, sedangkan koneksi ke database baru aktif pada proses login |
 
@@ -103,12 +103,13 @@ Proyek ini berkaitan dengan tiga tujuan Sustainable Development Goals (SDGs):
 |---|---|---|
 | Bahasa pemrograman | **Java 17** | Logika aplikasi dan penerapan OOP |
 | GUI | **Java Swing** (NetBeans GUI Builder) | Antarmuka aplikasi desktop |
-| Layout | **NetBeans AbsoluteLayout** `RELEASE120` | Penataan komponen form |
+| Layout | **NetBeans AbsoluteLayout** `RELEASE210` | Penataan komponen form |
 | Database | **MySQL 8** (dijalankan lewat Laragon) | Penyimpanan data relasional |
 | Akses data | **JDBC** + `PreparedStatement` | Query terparameter, aman dari SQL injection |
-| Database driver | **MySQL Connector/J 8.4.0** | Koneksi Java ke MySQL |
+| Database driver | **MySQL Connector/J 8.3.0** | Koneksi Java ke MySQL (membawa dependency `protobuf-java 3.25.1`) |
+| Keamanan password | **jBCrypt 0.4** | Hashing password pengguna |
 | Build tool | **Apache Maven** | Pengelolaan dependency dan build |
-| Pola arsitektur | **Model, DAO, Service, View** | Pemisahan data, akses database, logika, dan tampilan |
+| Pola arsitektur | **Model, DAO, Service, Controller, View** | Pemisahan data, akses database, logika, penghubung, dan tampilan |
 | IDE | **Apache NetBeans** | Pengembangan dan GUI Builder |
 | Version control | **Git dan GitHub** | Kolaborasi tim |
 
@@ -180,14 +181,30 @@ Basis data `brinkmikro` terdiri dari **11 tabel**:
 ### 6.1 Tampilan Struktur
 
 ```text
-BrinkMikro
+brinkmikro-app
 ├── pom.xml
 ├── .gitignore
 └── src/main/java/com/mycompany/brinkmikro/app
     ├── BrinkmikroApp.java            # Uji koneksi dan backend (CLI)
     │
+    ├── assets
+    │   └── logo_1.jpeg               # Logo aplikasi
+    │
     ├── config
-    │   └── DatabaseConnection.java   # Koneksi JDBC ke MySQL
+    │   ├── DatabaseConnection.java   # Koneksi JDBC ke MySQL
+    │   └── UserSession.java          # Data pengguna yang sedang login
+    │
+    ├── controller                    # Penghubung view dan DAO
+    │   ├── BaseController.java
+    │   ├── ControllerException.java
+    │   ├── AuthController.java
+    │   ├── PenggunaController.java
+    │   ├── NasabahController.java
+    │   ├── RekeningController.java
+    │   ├── TransaksiController.java
+    │   ├── PembiayaanController.java
+    │   ├── AngsuranController.java
+    │   └── MonitoringController.java
     │
     ├── model                         # Entity / data class
     │   ├── Pengguna.java             # Superclass akun
@@ -201,9 +218,11 @@ BrinkMikro
     ├── dao                           # Data Access Object (query SQL)
     │   ├── PenggunaDAO.java
     │   ├── NasabahDAO.java
-    │   ├── RekeningTransaksiDAO.java
+    │   ├── RekeningTabunganDAO.java
+    │   ├── TransaksiTabunganDAO.java
     │   ├── PembiayaanDAO.java
     │   ├── AngsuranDAO.java
+    │   ├── DashboardKasDAO.java
     │   └── MonitoringDAO.java
     │
     ├── service
@@ -221,9 +240,11 @@ BrinkMikro
 | Package | Isi | Peran |
 |---|---|---|
 | `app` | `BrinkmikroApp` | Program uji yang mencoba login dan memanggil DAO untuk membuktikan backend berjalan |
-| `app.config` | `DatabaseConnection` | Titik tunggal pembuatan koneksi database |
+| `app.assets` | `logo_1.jpeg` | Aset gambar yang dipakai antarmuka |
+| `app.config` | `DatabaseConnection`, `UserSession` | Titik tunggal pembuatan koneksi database dan penyimpan data pengguna yang sedang login |
+| `app.controller` | 10 class | Perantara antara view dan DAO, dengan `BaseController` dan `ControllerException` sebagai dasar dan penanganan kesalahan bersama |
 | `app.model` | 7 class | Representasi data dengan hierarki pewarisan `Pengguna` dan `Nasabah` |
-| `app.dao` | 6 class | Seluruh query SQL (CRUD, join, agregasi, transaksi) terpusat di sini |
+| `app.dao` | 8 class | Seluruh query SQL (CRUD, join, agregasi, transaksi) terpusat di sini |
 | `app.service` | `AuthService` | Logika login: validasi kredensial, hitung percobaan gagal, kunci akun |
 | `app.view` | 19 form | Antarmuka Swing. Setiap form memiliki pasangan file `.form` dari NetBeans GUI Builder |
 
@@ -305,8 +326,6 @@ public class Petani extends Nasabah {
 
 Seluruh form pada package `view` juga mewarisi `javax.swing.JFrame`.
 
-</details>
-
 ### 7.3 Polymorphism (Polimorfisme)
 
 Polimorfisme muncul dalam tiga bentuk:
@@ -343,6 +362,7 @@ txtSearch.getDocument().addDocumentListener(new DocumentListener() {
 Detail teknis disembunyikan di balik antarmuka yang sederhana:
 
 - **Lapisan DAO** menyembunyikan SQL, `PreparedStatement`, dan pengelolaan transaksi. Pemanggil cukup memakai method seperti `tarikTunai(...)`, `tambahAngsuran(...)`, atau `putuskanPembiayaan(...)`.
+- **Lapisan Controller** menjadi perantara antara view dan DAO, sehingga form Swing tidak perlu mengetahui detail query maupun pengelolaan koneksi.
 - **`AuthService`** menyembunyikan proses autentikasi dan penguncian akun dan hanya mengembalikan `LoginResult`.
 - **`DatabaseConnection`** menyembunyikan konfigurasi driver dan URL, sehingga class lain cukup memanggil `getConnection()`.
 - **Nested class `Record`** pada DAO (`AngsuranRecord`, `PembiayaanRecord`, dst.) mengemas hasil query join menjadi objek siap pakai.
@@ -352,12 +372,12 @@ Detail teknis disembunyikan di balik antarmuka yang sederhana:
 
 ```java
 // Pemanggil tidak perlu tahu SQL, penguncian baris, maupun commit/rollback
-RekeningTransaksiDAO dao = new RekeningTransaksiDAO();
+TransaksiTabunganDAO dao = new TransaksiTabunganDAO();
 dao.tarikTunai("10012026011", new BigDecimal("1850000"), 5);
 ```
 
 ```java
-// dao/RekeningTransaksiDAO.java (ringkasan alur tarikTunai)
+// dao/TransaksiTabunganDAO.java (ringkasan alur tarikTunai)
 conn.setAutoCommit(false);
 try {
     // 1. SELECT saldo, status ... FOR UPDATE
@@ -436,7 +456,7 @@ Halaman Login adalah pintu masuk seluruh pengguna. Dari sini pengguna diarahkan 
 6. Jika username, password, atau role tidak sesuai, muncul pesan peringatan dan Anda tetap berada di halaman login. Jika database tidak dapat dihubungi, muncul pesan "Koneksi ke database terputus".
 7. Klik **Reset** untuk mengosongkan seluruh isian.
 
-> 📝 **Catatan:** pada versi saat ini, data pada tabel di setiap form disimpan di memori selama aplikasi berjalan dan integrasinya ke database masih dalam pengerjaan. Logika penyimpanan ke database sudah tersedia di package `dao`.
+> 📝 **Catatan:** pada versi saat ini, data pada tabel di setiap form disimpan di memori selama aplikasi berjalan dan integrasinya ke database masih dalam pengerjaan. Logika penyimpanan ke database sudah tersedia di package `dao` dan `controller`.
 
 ### 8.6 Role Admin
 
@@ -799,6 +819,3 @@ Digunakan untuk melihat seluruh data angsuran semua nasabah.
 <hr>
 
 <p align="center"><b>BrinkMikro</b> · Java Swing · MySQL · JDBC · Object-Oriented Programming</p>
-
-
-@Ken
