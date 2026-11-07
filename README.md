@@ -568,7 +568,7 @@ Digunakan untuk mencatat tagihan dan pembayaran angsuran pembiayaan.
 
 Digunakan untuk memantau audit log dan ringkasan operasional sistem.
 
-![Uploading WhatsApp Image 2026-11-07 at 22.34.31 (2).jpeg…]()
+<img width="1600" height="904" alt="WhatsApp Image 2026-11-07 at 22 34 31 (2)" src="https://github.com/user-attachments/assets/6ced8493-5fc7-45f8-8db1-9968dd9c5885" />
 
 **Langkah penggunaan:**
 
